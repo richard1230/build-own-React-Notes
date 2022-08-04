@@ -114,6 +114,25 @@ function performUnitofWork() {
 
 ##  什么是 Fiber ，为何我们需要它
 
+注意:这里是面试考点:
+
+在React15以及之前,`Reconciler` 采用递归的方式创建虚拟DOM,递归过程是不能中断的! 如果组件树的层级很深,递归就会占用线程很多时间,造成卡顿。
+
+为了解决这个问题,React16将递归的无法中断的更新重构为异步的可以中断的更新,由于曾经用于递归的虚拟DOM数据结构已经无法满足需要,于是,全新的Fiber架构应运而生.
+
+## Fiber的含义
+
+Fiber包含三层含义:
+
+1.React15 的 Reconcicler 采用递归的方式执行,数据保存在递归调用栈里面, 所以被称为 stack Reconciler ; React16的Reconciler基于Fiber节点实现,被称为Fiber Reconciler .
+
+2.作为静态数据结构来说,每个Fiber节点对应一个React element, 保存了该组件的类型（函数组件/类组件...）、对应的DOM节点信息;
+
+3.作为动态工作单元而言,每个Fiber节点保存了本次更新中该组件改变的状态,要执行的工作(需要被删除/被插入页面中/被更新...)。
+
+
+
+
 
 
 
