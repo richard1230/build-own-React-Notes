@@ -110,9 +110,7 @@ function performUnitofWork() {
 
 ```
 
-
-
-##  什么是 Fiber ，为何我们需要它
+## 什么是 Fiber ，为何我们需要它
 
 注意:这里是面试考点:
 
@@ -124,7 +122,8 @@ function performUnitofWork() {
 
 Fiber包含三层含义:
 
-1.React15 的 Reconcicler 采用递归的方式执行,数据保存在递归调用栈里面, 所以被称为 stack Reconciler ; React16的Reconciler基于Fiber节点实现,被称为Fiber Reconciler .
+1.React15 的 Reconcicler 采用递归的方式执行,数据保存在递归调用栈里面, 所以被称为 stack Reconciler ;
+React16的Reconciler基于Fiber节点实现,被称为Fiber Reconciler .
 
 2.作为静态数据结构来说,每个Fiber节点对应一个React element, 保存了该组件的类型（函数组件/类组件...）、对应的DOM节点信息;
 
@@ -133,7 +132,6 @@ Fiber包含三层含义:
 ## Fiber结构
 
 ![img.png](img.png)
-
 
 上图是一棵Fiber树.为了组织工作单元,我们需要一个数据结构,每个元素都有一个Fiber结构,每个Fiber都是一个工作单元,每个工作单元又是如何工作的,下面的
 
@@ -145,8 +143,59 @@ performUnitOfWork函数,主要做了三件事:
 
 3.找到下一个工作单元
 
+```js
+function performUnitOfWork(fiber) {
+    //创建一个 dom 元素 ，挂载到 fiber 的 dom属性
+    if (!fiber.dom) {
+        fiber = createDom(fiber)
+    }
+    //添加 dom 到 父元素上
+    if (fiber.parent) {
+        fiber.parent.dom.appendChild(fiber.dom)
+    }
+    const elements = fiber.props.children
+    let index = 0
+    //保存 上一个 sibling fiber 结构
+    let prevSibling = null
+
+    while (index < elements.length) {
+        const element = elements[index]
+
+        const newFiber = {
+            type: element.type,
+            props: element.props,
+            parent: fiber,
+            dom: null
+        }
+
+        //第一个子元素 作为 child, 其余 的子元素 作为 sibling
+        if (index === 0) {
+            fiber.child = newFiber
+        } else {
+            prevSibling.sibling = newFiber
+        }
+        prevSibling = newFiber
+        index++
+    }
+    // 如果有 child fiber,则返回 child
+    if (fiber.child) {
+        return fiber.child
+    }
+    let nextFiber = fiber
+
+    while (nextFiber) {
+        // steps 如果有 sibling fiber ，则返回 sibling
+        if (nextFiber.sibling) {
+            return nextFiber.sibling
+        }
+
+        //step3,否则返回 他的 parent fiber
+        nextFiber = nextFiber.parent
+    }
+}
 
 
+```
 
 
 
