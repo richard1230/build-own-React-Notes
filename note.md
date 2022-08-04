@@ -199,6 +199,8 @@ function performUnitOfWork(fiber) {
 
 
 
+## Render 和 Commit 阶段都做了什么
+上面的 performUnitOfWork里面,每次都把元素添加到dom上,这里
 
 
 
