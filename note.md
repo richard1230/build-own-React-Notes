@@ -197,8 +197,6 @@ function performUnitOfWork(fiber) {
 
 ```
 
-
-
 ## Render 和 Commit 阶段都做了什么
 
 上面的 performUnitOfWork里面,每次都把元素添加到dom上,这里会有一个问题,就是浏览器随时都有可能中断我们的要求,这样呈现给用户的就是一个不完整的UI,
@@ -212,24 +210,54 @@ function performUnitOfWork(fiber) {
 
 function workLoop(deadline) {
     let shouldYield = false
-    while (nextUnitofWork && !shouldYield){
+    while (nextUnitofWork && !shouldYield) {
         nextUnitofWork = performUnitofWork(
             nextUnitofWork
         )
         shouldYield = deadline.timeRemaining() < 1
     }
     //所有工作单元都执行完之后,我们会进一步 进行 操作, commitRoot 里 进行所有元素 往 dom 树 上 添加 的动作
-    if(!nextUnitofWork && wipRoot){
+    if (!nextUnitofWork && wipRoot) {
         commitRoot()
     }
-     requestIdleCallback(workLoop)
+    requestIdleCallback(workLoop)
 }
 
 ```
 
+## Reconciliation 协调阶段
+
+到目前为止,我们只处理添加dom的情况,那么 update 和 remove dom 的情况该怎么办,这时候就需要我们在 commit 阶段完成之后,
+用一个变量来保存旧的 fiber 树(称之为 currentRoot)
+
+来和当前(WipRoot: Work in progress)要修改的fiber树进行比较, 我们在每个WipRoot 上面新增一个属性alternate用来链接旧的
+fiber 树(就是上一次commit后的)
+
+```js
+function commitRoot() {
+    commitWork(wipRoot.child)
+    //commit 阶段完成之后,保存当前的 fiber 树
+    currentRoot = wipRoot
+    wipRoot = null
+}
+
+function render(element, container) {
+    wipRoot = {
+        dom: container,
+        props: {
+            children: [element],
+        },
+        // 和上一次 的 commit 阶段的 旧 fiber 树 建立连接
+        alternate: currentRoot
+    }
+    nextUnitofwork = wipRoot
+}
+
+let currentRoot = null
 
 
-
+```
+![img_3.png](img_3.png)
 
 
 
