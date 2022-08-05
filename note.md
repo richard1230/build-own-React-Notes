@@ -260,6 +260,23 @@ let currentRoot = null
 ![img_3.png](img_3.png)
 
 
+>这里的比较规则如下:
+- 如果旧的fiber 元素和新元素具有相同的类型,那么再进一步进行比较 他们的 属性
+- 如果类型不同,并且有一个新元素,则需要创建一个新的DOM节点
+- 如果类型不同,并且有一个旧 fiber 元素,则移除旧的节点 这里React也使用key进行比较. 例如,它检测到子元素在元素数组中的为止发生了变化.
+
+```js
+function performUnitOfwork(fiber) {
+    if(!fiber.dom){
+       fiber.dom = createDom(fiber) 
+    }
+    
+    
+}
+
+```
+
+
 
 
 
