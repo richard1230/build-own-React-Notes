@@ -200,7 +200,34 @@ function performUnitOfWork(fiber) {
 
 
 ## Render 和 Commit 阶段都做了什么
-上面的 performUnitOfWork里面,每次都把元素添加到dom上,这里
+
+上面的 performUnitOfWork里面,每次都把元素添加到dom上,这里会有一个问题,就是浏览器随时都有可能中断我们的要求,这样呈现给用户的就是一个不完整的UI,
+
+所以我们需要做出一些改动,就是 所有工作单元执行完以后,我们再一并进行所有dom的添加
+
+```js
+ function commitRoot() {
+    // TODO add nodes to dom
+}
+
+function workLoop(deadline) {
+    let shouldYield = false
+    while (nextUnitofWork && !shouldYield){
+        nextUnitofWork = performUnitofWork(
+            nextUnitofWork
+        )
+        shouldYield = deadline.timeRemaining() < 1
+    }
+    //所有工作单元都执行完之后,我们会进一步 进行 操作, commitRoot 里 进行所有元素 往 dom 树 上 添加 的动作
+    if(!nextUnitofWork && wipRoot){
+        commitRoot()
+    }
+     requestIdleCallback(workLoop)
+}
+
+```
+
+
 
 
 
