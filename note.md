@@ -257,31 +257,34 @@ let currentRoot = null
 
 
 ```
+
 ![img_3.png](img_3.png)
 
 
->这里的比较规则如下:
+> 这里的比较规则如下:
+
 - 如果旧的fiber 元素和新元素具有相同的类型,那么再进一步进行比较 他们的 属性
 - 如果类型不同,并且有一个新元素,则需要创建一个新的DOM节点
 - 如果类型不同,并且有一个旧 fiber 元素,则移除旧的节点 这里React也使用key进行比较. 例如,它检测到子元素在元素数组中的为止发生了变化.
 
 ```js
 function performUnitOfwork(fiber) {
-    if(!fiber.dom){
-       fiber.dom = createDom(fiber) 
+    if (!fiber.dom) {
+        fiber.dom = createDom(fiber)
     }
-    
+
     const elements = fiber.props.children
-    reconcileChildren(fiber,elements)
+    reconcileChildren(fiber, elements)
 }
-function reconcileChildrem(wipFiber,elements) {
+
+function reconcileChildrem(wipFiber, elements) {
     let index = 0;
     let oldFiber = wipFiber.alternate && wipFiber.alternate.child
     let prevSibling = null;
-    while(
+    while (
         index < elements.length ||
         oldFiber != null
-        ){
+        ) {
         const element = elements[index]
         let newFiber = null
 
@@ -289,40 +292,40 @@ function reconcileChildrem(wipFiber,elements) {
             element &&
             element.type == oldFiber.type
         //类型相同,更新 属性
-        if (sameType){
+        if (sameType) {
             newFiber = {
-                type:oldFiber.type,
-                props:element.props,
+                type: oldFiber.type,
+                props: element.props,
                 dom: oldFiber.dom,
                 parent: wipFiber,
-                alternate:oldFiber,
-                effectTag:"UPDATE",
+                alternate: oldFiber,
+                effectTag: "UPDATE",
             }
         }
         //类型不同，但是新的 fiber  元素存在,则新增 fiber
-        if (element && !sameType){
+        if (element && !sameType) {
             newFiber = {
                 type: element.type,
                 props: element.props,
                 dom: null,
                 parent: wipFiber,
-                alternate:null,
-                effectTag:"PLACEMENT",
+                alternate: null,
+                effectTag: "PLACEMENT",
             }
         }
         // 类型不同,但是 旧的 fiber 树 存在,则进行移除(先收集起来,在commit 阶段一并移除)
-        if (oldFiber && !sameType){
+        if (oldFiber && !sameType) {
             oldFiber.effectTag = "DELETION"
             deletions.push(oldFiber)
         }
         //下个循环 对兄弟 fiber进行比较(后面的 i++ 逻辑一样)
-        if (oldFiber){
+        if (oldFiber) {
             oldFiber = oldFiber.sibling
         }
         // 如果是 第一个 子元素，则把 新的 fiber  挂载到 wipFiber 的 child 属性上面
-        if (index === 0){
+        if (index === 0) {
             wipFiber.child = newFiber
-        } else if(element){
+        } else if (element) {
             //如果已经有子元素的话,就挂到 上一个子元素 的 sibling 属性上面
             prevSibling.sibling = newFiber
         }
