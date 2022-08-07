@@ -342,6 +342,42 @@ function reconcileChildrem(wipFiber, elements) {
 
 ### commit阶段
 
+在reconcile 协调阶段完成之后,我们进入到commit阶段;
+
+```js
+ function commitRoot() {
+    //移除 刚才 收集的 旧节点
+    deletions.forEach(commitWork)
+    //commit 当前 wipRoot 的 child 元素
+    commitWork(wipRoot.child)
+    //改变当前 root 指向
+    currentRoot = wipRoot
+    wipRoot = null
+}
+
+function commitWork(fiber) {
+    if (!fiber) {
+        return
+    }
+    const domParent = fiber.parent.domain
+    if (fiber.effectTag === "PLACEMENT" &&
+        fiber.dom != null
+    ) {
+        domParent.appendChild(fiber.dom)
+    } else if (
+        fiber.effectTag === "UPDATE" &&
+        fiber.dom != null
+    ) {
+        updateDom(fiber.dom, fiber.alternate.props, fiber.props);
+    } else if (fiber.effectTag === "DELETION") {
+        domParent.removeChild(fiber.dom)
+    }
+    commitWork(fiber.child);
+    commitWork(fiber.sibling)
+}
+
+
+```
 
 
 
