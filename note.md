@@ -379,6 +379,25 @@ function commitWork(fiber) {
 
 ```
 
+##  更新dom操作
+
+```js
+//事件属性
+const isEvent = key => startswith("on")
+//除去事件属性 和 特殊属性 children 外的属性
+const isProperty = key => key!== "children" && !isEvent(key)
+
+//是否为新增的属性
+const isNew = (prev,next) => key => prev[key] !== next[key]
+//是否需要移除属性
+ const isGone = (prev,next) => key => !(key in next)
+
+function updateDom(dom,prevProps,nextProps) {
+    //移除旧事件
+    
+}
+
+```
 
 
 
