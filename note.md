@@ -455,6 +455,12 @@ const element = <App name="foo"/>
 
 const container = document.getElementById("root")
 
+const Didact = {
+    createElement,
+    render,
+    useState
+};
+
 Didact.render(element, container)
 
 ```
@@ -510,14 +516,14 @@ function commitWork(fiber) {
     if (!fiber) {
         return
     }
-​
+
   let domParentFiber = fiber.parent
     // 递归找到 含有 dom 节点的 元素
     while (!domParentFiber.dom) {
         domParentFiber = domParentFiber.parent
     }
     const domParent = domParentFiber.dom
-​
+    
   if (
       fiber.effectTag === "PLACEMENT" &&
       fiber.dom != null
@@ -548,7 +554,15 @@ function commitDeletion(fiber, domParent) {
 
 ```
 
+![img_4.png](img_4.png)
 
+
+
+## 参考
+
+https://juejin.cn/post/6884968140892176397
+
+https://juejin.cn/post/7022470436743036959  --->have a look
 
 
 
