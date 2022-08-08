@@ -394,6 +394,30 @@ const isNew = (prev,next) => key => prev[key] !== next[key]
 
 function updateDom(dom,prevProps,nextProps) {
     //移除旧事件
+    Object.keys(prevProps)
+        .filter(isEvent)
+        .filter(
+            key =>
+                !(key in nextProps) ||
+                isNew(prevProps,nextProps)(key)
+        )
+        .forEach(name =>{
+            const eventTpe = name
+                .toLowerCase()
+                .substring(2)
+            dom.removeEventListener(
+                eventTpe,
+                prevProps[name]
+            )
+        })
+    //移除旧属性
+    Object.keys(prevProps)
+        .filter(isProperty)
+        .filter(isGone(prevProps,nextProps))
+        .forEach(name =>{
+            dom[name] = ""
+        })
+    //添加或者更新属性
     
 }
 
