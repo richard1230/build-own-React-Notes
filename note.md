@@ -379,29 +379,29 @@ function commitWork(fiber) {
 
 ```
 
-##  更新dom操作
+## 更新dom操作
 
 ```js
 //事件属性
 const isEvent = key => startswith("on")
 //除去事件属性 和 特殊属性 children 外的属性
-const isProperty = key => key!== "children" && !isEvent(key)
+const isProperty = key => key !== "children" && !isEvent(key)
 
 //是否为新增的属性
-const isNew = (prev,next) => key => prev[key] !== next[key]
+const isNew = (prev, next) => key => prev[key] !== next[key]
 //是否需要移除属性
- const isGone = (prev,next) => key => !(key in next)
+const isGone = (prev, next) => key => !(key in next)
 
-function updateDom(dom,prevProps,nextProps) {
+function updateDom(dom, prevProps, nextProps) {
     //移除旧事件
     Object.keys(prevProps)
         .filter(isEvent)
         .filter(
             key =>
                 !(key in nextProps) ||
-                isNew(prevProps,nextProps)(key)
+                isNew(prevProps, nextProps)(key)
         )
-        .forEach(name =>{
+        .forEach(name => {
             const eventTpe = name
                 .toLowerCase()
                 .substring(2)
@@ -413,12 +413,31 @@ function updateDom(dom,prevProps,nextProps) {
     //移除旧属性
     Object.keys(prevProps)
         .filter(isProperty)
-        .filter(isGone(prevProps,nextProps))
-        .forEach(name =>{
+        .filter(isGone(prevProps, nextProps))
+        .forEach(name => {
             dom[name] = ""
         })
     //添加或者更新属性
-    
+    Object.keys(nextProps)
+        .filter(isProperty)
+        .filter(isNew(prevProps, nextProps))
+        .forEach(name => {
+            dom[name] = nextProps[name]
+        })
+
+    //添加监听事件
+    Object.keys(nextProps)
+        .filter(isEvent)
+        .filter(isNew(prevProps, nextProps))
+        .forEach(name => {
+            const eventType = name
+                .toLowerCase()
+                .substring(2)
+            dom.addEventListener(
+                eventType,
+                nextProps[name]
+            )
+        })
 }
 
 ```
